@@ -1,0 +1,27 @@
+.bullet-container {
+    display: block;
+    position: absolute;
+    width: 100%;
+}
+
+.bullet {
+    --bullet-scale: 1;
+
+    display: block;
+    position: absolute;
+    transform: translate(-50%, -50%) scale(var(--bullet-scale));
+    width: 1em;
+    height: 1em;
+    border-radius: 50%;
+    background: black;
+    transition: transform 0.5s;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    touch-action: none;
+}
+
+.bullet:hover {
+    z-index: 1;
+}
