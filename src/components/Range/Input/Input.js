@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { validateNumber } from '../Utils/Utils'
+import { validateNumber, roundingToTwoDecimals } from '../Utils/Utils'
 import './Input.css'
 
 const Input = (
@@ -44,7 +44,7 @@ const Input = (
                 aria-label={ ariaLabel }
                 className="range-currency"
             >
-                {`${value}€`}
+                {`${roundingToTwoDecimals( value )}€`}
             </span>
         )
     }
@@ -54,7 +54,7 @@ const Input = (
             type="text"
             aria-label={ ariaLabel }
             onChange={ e => handleOnChange( e.target.value ) }
-            value={ ( isTyping ? inputValue : `${value}€` ) }
+            value={ ( isTyping ? inputValue : `${roundingToTwoDecimals( value )}€` ) }
             onFocus={ () => setIsTyping( true ) }
             onBlur={ handleOnBlur }
             pattern="/^\d*(\.\d{1,2})?€?$/g"

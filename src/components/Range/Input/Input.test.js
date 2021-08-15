@@ -5,18 +5,18 @@ import Input from './Input'
 test( 'value and currency symbol in a readonly Input are shown properly', () => {
     render(
         <Input
-            value='2.00'
+            value='2.12'
             readonly={ true }
             onChange={ () => {} }
             onModify={ () => {} }
         />
     )
-    const marquee = screen.getByText( '2.00€' )
+    const marquee = screen.getByText( '2.12€' )
     expect( marquee ).toBeInTheDocument()
 } )
 
 describe( 'behaviours on typing', () => {
-    let value = '2.00€'
+    let value = '2.12€'
     let typing = false
 
     const onChangeMockHandler = jest.fn( newValue => { value = newValue } )

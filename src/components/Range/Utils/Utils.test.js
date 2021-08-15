@@ -4,7 +4,8 @@ import {
     indexToPercent,
     valueToPercent,
     percentToValue,
-    validateNumber
+    validateNumber,
+    roundingToTwoDecimals
 } from './Utils'
 
 describe( 'get closer index by percent', () => {
@@ -102,4 +103,8 @@ describe( 'validate number', () => {
     it( 'input of 3 validates', () => {
         expect( validateNumber( '3' ) ).toBe( '3' )
     } )
+} )
+
+test( 'rounds number to two decimals', () => {
+    expect( roundingToTwoDecimals( 56.991 ) ).toBe( 56.99 )
 } )

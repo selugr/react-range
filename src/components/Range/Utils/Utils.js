@@ -18,10 +18,14 @@ export const indexToPercent = ( index, values ) => {
 
 export const valueToPercent = ( value, minValue, maxValue ) => {
     const percent = clamp( ( ( value - minValue ) * 100 ) / ( maxValue - minValue ), 0, 100 )
-    return Math.round( percent * 100 ) / 100
+    return roundingToTwoDecimals( percent )
 }
 
 export const percentToValue = ( percent, minValue, maxValue ) => {
     const value = minValue + ( ( percent * ( maxValue - minValue ) ) / 100 )
+    return roundingToTwoDecimals( value )
+}
+
+export const roundingToTwoDecimals = ( value ) => {
     return Math.round( value * 100 ) / 100
 }
