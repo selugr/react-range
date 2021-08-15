@@ -1,179 +1,184 @@
-/**
- * @jest-environment jsdom
- */
-
-import { render, fireEvent, screen, waitFor, cleanup } from '@testing-library/react'
-import Range from './Range'
-
-class ResizeObserver {
-    observe () {}
-    unobserve () {}
-}
+import { render, fireEvent, screen } from '@testing-library/react'
+import { PointerEventFake } from './Utils/TestUtils'
+import ResizeObserver from 'resize-observer-polyfill'
+import Range, { LABELS } from './Range'
 
 window.ResizeObserver = ResizeObserver
+window.PointerEvent = PointerEventFake
 
-describe('continous range', () => {
-    const values = [1.99, 5.99]
+describe( 'continuous range', () => {
+    const values = [1.99, 70.99]
     let min = values[0]
-    let max = values.slice(-1)
+    let max = values.slice( -1 ).shift()
 
-    const onChangeMinMockHandler = newMin => {
-        min = newMin
-    }
-    const onChangeMaxMockHandler = newMax => {
-        max = newMax
-    }
+    const onChangeMinMockHandler = jest.fn( newValue => { min = +newValue } )
+    const onChangeMaxMockHandler = jest.fn( newValue => { max = +newValue } )
 
-    beforeEach(() => {
+    beforeEach( () => {
         render(
             <Range
-                rangeValues={values}
-                onChangeMin={onChangeMinMockHandler}
-                onChangeMax={onChangeMaxMockHandler}
+                rangeValues={ values }
+                onChangeMin={ onChangeMinMockHandler }
+                onChangeMax={ onChangeMaxMockHandler }
             />
         )
-    })
+        jest.clearAllMocks()
+    } )
 
-    afterEach(cleanup)
+    it( 'renders min price input', () => {
+        const minInput = screen.getByRole( 'textbox', { name: LABELS.MIN } )
+        expect( minInput ).toBeInTheDocument()
+    } )
 
-    test('renders min price', async () => {
-        const minInput = screen.getAllByRole('textbox', { value: '1.99€' })
-        await waitFor(() => {
-            setTimeout(() => {
-                expect(minInput).toBeInTheDocument()
-            }, 500)
-        })
-    })
+    it( 'renders max price input', () => {
+        const maxInput = screen.getByRole( 'textbox', { name: LABELS.MAX } )
+        expect( maxInput ).toBeInTheDocument()
+    } )
 
-    test('renders max price', async () => {
-        const maxInput = screen.getAllByRole('textbox', { value: '70.99€' })
-        await waitFor(() => {
-            setTimeout(() => {
-                expect(maxInput).toBeInTheDocument()
-            }, 500)
-        })
-    })
+    it( 'renders min price slider', () => {
+        const minInput = screen.getByRole( 'slider', { name: LABELS.MIN } )
+        expect( minInput ).toBeInTheDocument()
+    } )
 
-    test('onChangeMin callback is called on a min input filter change', async () => {
-        const bullet = screen.getAllByRole('slider')[0]
-        fireEvent.pointerDown(bullet)
-        fireEvent.pointerMove(bullet, { movementX: 50 })
+    it( 'renders max price slider', () => {
+        const maxInput = screen.getByRole( 'slider', { name: LABELS.MAX } )
+        expect( maxInput ).toBeInTheDocument()
+    } )
 
-        await waitFor(() => {
-            setTimeout(() => {
-                expect(min).toBeGreaterThan(values.slice(-1))
-            }, 500)
-        })
-        fireEvent.pointerUp(bullet)
-    })
+    it( 'calls onChangeMin callback on a min input filter change', () => {
+        const bullet = screen.getAllByRole( 'slider' )[0]
+        fireEvent.pointerDown( bullet )
+        fireEvent.pointerMove( bullet, { movementX: 1 } )
+        expect( onChangeMinMockHandler ).toHaveBeenCalled()
+        fireEvent.pointerUp( bullet )
+        expect( min ).toBeGreaterThan( values[0] )
+        expect( min ).toBeLessThan( values[1] )
+    } )
 
-    test('onChangeMax callback is called on a max input filter change', async () => {
-        const bullet = screen.getAllByRole('slider')[1]
-        fireEvent.pointerDown(bullet)
-        fireEvent.pointerMove(bullet, { movementX: -50 })
+    it( 'calls onChangeMax callback on a max input filter change', () => {
+        const bullet = screen.getAllByRole( 'slider' )[1]
+        fireEvent.pointerDown( bullet )
+        fireEvent.pointerMove( bullet, { movementX: -1 } )
+        expect( onChangeMaxMockHandler ).toHaveBeenCalled()
+        fireEvent.pointerUp( bullet )
+        expect( max ).toBeLessThan( values[1] )
+        expect( max ).toBeGreaterThan( values[0] )
+    } )
+} )
 
-        await waitFor(() => {
-            setTimeout(() => {
-                expect(max).toBeLessThan(values[1])
-            }, 500)
-        })
-        fireEvent.pointerUp(bullet)
-    })
-})
-
-describe('continous range which updates filters on end', () => {
+describe( 'continuous range which updates filters on end', () => {
     const values = [1.99, 5.99]
     let min = values[0]
     let max = values[1]
 
-    const onChangeMinMockHandler = newMin => {
-        min = newMin
-    }
-    const onChangeMaxMockHandler = newMax => {
-        max = newMax
-    }
+    const onChangeMinMockHandler = jest.fn( newValue => { min = +newValue } )
+    const onChangeMaxMockHandler = jest.fn( newValue => { max = +newValue } )
 
-    beforeEach(() => {
+    beforeEach( () => {
         render(
             <Range
-                rangeValues={values}
-                onChangeMin={onChangeMinMockHandler}
-                onChangeMax={onChangeMaxMockHandler}
+                rangeValues={ values }
+                onChangeMin={ onChangeMinMockHandler }
+                onChangeMax={ onChangeMaxMockHandler }
                 updateOnEnd
             />
         )
-    })
+        jest.clearAllMocks()
+    } )
 
-    afterEach(cleanup)
+    it( 'calls onChangeMin callback on the end of a min input filter change', () => {
+        const bullet = screen.getAllByRole( 'slider' )[0]
+        fireEvent.pointerDown( bullet )
 
-    test('onChangeMin callback is called on the end of a min input filter change', async () => {
-        const bullet = screen.getAllByRole('slider')[0]
-        fireEvent.pointerDown(bullet)
-        fireEvent.pointerMove(bullet, { movementX: 50 })
+        fireEvent.pointerMove( bullet, { movementX: 1 } )
+        expect( min ).toBe( values[0] )
+        expect( onChangeMinMockHandler ).toHaveBeenCalledTimes( 0 )
 
-        await waitFor(() => {
-            setTimeout(() => {
-                expect(min).toBe(values[0])
-            }, 500)
-        })
-        fireEvent.pointerUp(bullet)
+        fireEvent.pointerUp( bullet )
+        expect( min ).toBeGreaterThan( values[0] )
+        expect( onChangeMinMockHandler ).toHaveBeenCalledTimes( 1 )
+    } )
 
-        await waitFor(() => {
-            setTimeout(() => {
-                expect(min).toBeGreaterThan(values.slice(-1))
-            }, 500)
-        })
-    })
+    it( 'calls onChangeMax callback on the end of a max input filter change', () => {
+        const bullet = screen.getAllByRole( 'slider' )[1]
+        fireEvent.pointerDown( bullet )
 
-    test('onChangeMax callback is called on the end of a max input filter change', async () => {
-        const bullet = screen.getAllByRole('slider')[1]
-        fireEvent.pointerDown(bullet)
-        fireEvent.pointerMove(bullet, { movementX: -50 })
+        fireEvent.pointerMove( bullet, { movementX: -1 } )
+        expect( max ).toBe( values[1] )
+        expect( onChangeMaxMockHandler ).toHaveBeenCalledTimes( 0 )
 
-        await waitFor(() => {
-            setTimeout(() => {
-                expect(max).toBe(values.slice(-1))
-            }, 500)
-        })
+        fireEvent.pointerUp( bullet )
+        expect( max ).toBeLessThan( values[1] )
+        expect( onChangeMaxMockHandler ).toHaveBeenCalledTimes( 1 )
+    } )
+} )
 
-        fireEvent.pointerUp(bullet)
+describe( 'staggered range', () => {
+    const values = [1.99, 5.99, 10.99, 30.99, 50.99, 70.99]
 
-        await waitFor(() => {
-            setTimeout(() => {
-                expect(max).toBeLessThan(values.slice(-1))
-            }, 500)
-        })
-    })
-})
+    let min = values[0]
+    let max = values.slice( -1 ).shift()
+    const onChangeMinMockHandler = jest.fn( newValue => { min = +newValue } )
+    const onChangeMaxMockHandler = jest.fn( newValue => { max = +newValue } )
 
-describe('staggered range', () => {
-    beforeEach(() => {
+    beforeEach( () => {
         render(
             <Range
-                rangeValues={[1.99, 5.99, 10.99, 30.99, 50.99, 70.99]}
-                onChangeMin={() => {}}
-                onChangeMax={() => {}}
+                rangeValues={ values }
+                onChangeMin={ onChangeMinMockHandler }
+                onChangeMax={ onChangeMaxMockHandler }
             />
         )
-    })
+        jest.clearAllMocks()
+    } )
 
-    afterEach(cleanup)
+    it( 'renders min price label', () => {
+        const number = screen.getByText( '1.99€' )
+        expect( number ).toBeInTheDocument()
+    } )
 
-    test('renders min price', async () => {
-        const number = screen.getByText('1.99€')
-        await waitFor(() => {
-            setTimeout(() => {
-                expect(number).toBeInTheDocument()
-            }, 500)
-        })
-    })
+    it( 'renders max price label', () => {
+        const number = screen.getByText( '70.99€' )
+        expect( number ).toBeInTheDocument()
+    } )
 
-    test('renders max price', async () => {
-        const number = screen.getByText('70.99€')
-        await waitFor(() => {
-            setTimeout(() => {
-                expect(number).toBeInTheDocument()
-            }, 500)
-        })
-    })
-})
+    it( 'calls onChangeMin callback on a min input filter change', () => {
+        const bullet = screen.getAllByRole( 'slider' )[0]
+        fireEvent.pointerDown( bullet )
+        fireEvent.pointerMove( bullet, { movementX: 1 } )
+        expect( onChangeMinMockHandler ).toHaveBeenCalled()
+        fireEvent.pointerUp( bullet )
+        expect( min ).toBeGreaterThan( values[0] )
+        expect( min ).toBeLessThan( values.slice( -1 ).shift() )
+    } )
+
+    it( 'calls onChangeMax callback on a max input filter change', () => {
+        const bullet = screen.getAllByRole( 'slider' )[1]
+        fireEvent.pointerDown( bullet )
+        fireEvent.pointerMove( bullet, { movementX: -1 } )
+        expect( onChangeMaxMockHandler ).toHaveBeenCalled()
+        fireEvent.pointerUp( bullet )
+        expect( max ).toBeLessThan( values.slice( -1 ).shift() )
+        expect( max ).toBeGreaterThan( values[0] )
+    } )
+} )
+
+test( 'throws error when onChange min and max callbacks are not provided', () => {
+    jest.spyOn( console, 'error' )
+    console.error.mockImplementation( () => {} )
+
+    const notValidFunction = ''
+
+    const renderRange = () => {
+        render( <Range
+            rangeValues={ [2, 10] }
+            onChangeMin={ notValidFunction }
+            onChangeMax={ notValidFunction }
+        />
+        )
+    }
+
+    expect( renderRange ).toThrowError()
+
+    console.error.mockRestore()
+} )

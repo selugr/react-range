@@ -1,6 +1,6 @@
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const { merge } = require('webpack-merge')
-const common = require('./webpack.common')
+const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' )
+const { merge } = require( 'webpack-merge' )
+const common = require( './webpack.common' )
 
 const prodConfig = {
     mode: 'production',
@@ -23,4 +23,4 @@ const prodConfig = {
     devtool: 'source-map'
 }
 
-module.exports = merge(common, prodConfig)
+module.exports = merge( common, prodConfig )

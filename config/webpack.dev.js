@@ -1,7 +1,7 @@
-const { HotModuleReplacementPlugin } = require('webpack')
-const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
-const { merge } = require('webpack-merge')
-const common = require('./webpack.common')
+const { HotModuleReplacementPlugin } = require( 'webpack' )
+const ReactRefreshWebpackPlugin = require( '@pmmmwh/react-refresh-webpack-plugin' )
+const { merge } = require( 'webpack-merge' )
+const common = require( './webpack.common' )
 
 const devConfig = {
     mode: 'development',
@@ -28,4 +28,4 @@ const devConfig = {
     devtool: 'eval-source-map'
 }
 
-module.exports = merge(common, devConfig)
+module.exports = merge( common, devConfig )

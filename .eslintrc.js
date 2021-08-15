@@ -1,7 +1,9 @@
 const RULES = {
     OFF: 'off',
     WARN: 'warn',
-    ERROR: 'error'
+    ERROR: 'error',
+    NEVER: 'never',
+    ALWAYS: 'always'
 }
 
 module.exports = {
@@ -39,10 +41,13 @@ module.exports = {
         'prefer-const': RULES.WARN,
         quotes: [2, 'single', 'avoid-escape'],
         indent: [RULES.ERROR, 4],
+        'object-curly-spacing': [RULES.ERROR, RULES.ALWAYS],
+        'space-in-parens': [RULES.ERROR, RULES.ALWAYS],
         'react/jsx-indent': [RULES.ERROR, 4],
         'react/jsx-indent-props': [RULES.ERROR, 4],
         'react/prop-types': RULES.OFF,
         'react/react-in-jsx-scope': RULES.OFF,
+        'react/jsx-curly-spacing': [1, { when: RULES.ALWAYS }],
         'jest/no-disabled-tests': RULES.WARN,
         'jest/no-focused-tests': RULES.ERROR,
         'jest/no-identical-title': RULES.ERROR,

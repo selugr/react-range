@@ -1,23 +1,11 @@
-/**
- * @jest-environment jsdom
- */
-
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
+import ResizeObserver from 'resize-observer-polyfill'
 import App from './App'
-
-class ResizeObserver {
-    observe () {}
-    unobserve () {}
-}
 
 window.ResizeObserver = ResizeObserver
 
-test('renders control number for inputs', async () => {
-    render(<App />)
-    const number = screen.findAllByText('0€')
-    await waitFor(() => {
-        setTimeout(() => {
-            expect(number).toBeInTheDocument()
-        }, 100)
-    })
-})
+test( 'range component renders in landing page', () => {
+    render( <App /> )
+    const inputs = screen.getAllByRole( 'textbox' )
+    expect( inputs ).toHaveLength( 2 )
+} )

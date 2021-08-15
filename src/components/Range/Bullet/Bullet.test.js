@@ -1,81 +1,63 @@
-/**
- * @jest-environment jsdom
- */
-
-import { render, screen, waitFor, cleanup, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
+import { PointerEventFake } from '../Utils/TestUtils'
+import ResizeObserver from 'resize-observer-polyfill'
 import Bullet from './Bullet'
 
-class ResizeObserver {
-    observe () {}
-    unobserve () {}
-}
-
 window.ResizeObserver = ResizeObserver
+window.PointerEvent = PointerEventFake
 
-describe('bullet behaviours', () => {
-    const values = [1.99, 5.99, 10.99, 30.99, 50.99, 70.99]
-    let value = values[0]
-    let moving = false
+describe( 'bullet behaviours', () => {
+    const values = [1.99, 70.99]
 
-    const onChangeMockHandler = newValue => {
-        value = newValue
-    }
-    const onModifyMockHandler = isMoving => {
-        moving = isMoving
-    }
+    const onChangeMockHandler = jest.fn()
+    const onModifyMockHandler = jest.fn()
 
     const setup = () => {
         const component = render(
             <Bullet
-                value={value}
-                values={values}
-                onChange={onChangeMockHandler}
-                onModify={onModifyMockHandler}
-                limit={values[3]}
-                filtersOffset={2}
+                value={ values[0] }
+                values={ values }
+                onChange={ onChangeMockHandler }
+                onModify={ onModifyMockHandler }
+                limit={ values.slice( -1 ).shift() }
+                filtersOffset={ 2 }
             />
         )
-        const bullet = screen.getByRole('slider')
+        const bullet = screen.getByRole( 'slider' )
         return {
             bullet,
             ...component
         }
     }
 
-    afterEach(cleanup)
+    beforeEach( () => {
+        jest.clearAllMocks()
+    } )
 
-    test('renders a bullet', async () => {
+    it( 'renders a bullet', () => {
         const { bullet } = setup()
-        await waitFor(() => {
-            setTimeout(() => {
-                expect(bullet).toBeInTheDocument()
-            }, 500)
-        })
-    })
+        expect( bullet ).toBeInTheDocument()
+    } )
 
-    test('triggers onChange callback when moving', async () => {
+    it( 'triggers onChange callback when moving', () => {
         const { bullet } = setup()
 
-        fireEvent.pointerDown(bullet)
-        fireEvent.pointerMove(bullet, { movementX: 50 })
-        fireEvent.pointerUp(bullet)
+        fireEvent.pointerDown( bullet )
+        fireEvent.pointerMove( bullet, { movementX: 1 } )
+        fireEvent.pointerUp( bullet )
 
-        await waitFor(() => {
-            setTimeout(() => {
-                expect(value).toBeGreaterThan(0)
-            }, 500)
-        })
-    })
+        expect( onChangeMockHandler ).toHaveBeenCalledTimes( 1 )
+    } )
 
-    test('triggers onModify callback when moving and blurring', async () => {
+    it( 'triggers onModify callback when moving and blurring', () => {
         const { bullet } = setup()
 
-        fireEvent.pointerDown(bullet)
+        onModifyMockHandler.mockClear()
 
-        fireEvent.pointerMove(bullet, { movementX: 50 })
-        expect(moving).toBeTruthy()
+        fireEvent.pointerDown( bullet )
+        fireEvent.pointerMove( bullet, { movementX: 1 } )
+        fireEvent.pointerUp( bullet )
 
-        fireEvent.pointerUp(bullet)
-        expect(moving).toBeFalsy()
-    })
-})
+        expect( onModifyMockHandler ).toHaveBeenCalledTimes( 2 )
+    } )
+} )

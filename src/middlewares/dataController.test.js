@@ -1,13 +1,29 @@
+import dataServices from './services/dataServices'
 import dataController from './dataController'
+jest.mock( './services/dataServices' )
 
-it('Fetches continuous values', async () => {
-    const result = [1, 100]
-    const data = await dataController.getContinuousValues()
-    expect(data).toEqual(result)
-})
+describe( 'fetching continuous values from data services', () => {
+    it( 'fetches successfully data', async () => {
+        const data = [2, 10]
 
-it('Fetches staggered values', async () => {
-    const result = [1.99, 5.99, 10.99, 30.99, 50.99, 70.99]
-    const data = await dataController.getStaggeredValues()
-    expect(data).toEqual(result)
-})
+        dataServices.getContinuousValues.mockImplementationOnce( () => Promise.resolve( data ) )
+        await expect( dataController.getContinuousValues() ).resolves.toEqual( data )
+    } )
+    it( 'fetches erroneously data', async () => {
+        dataServices.getContinuousValues.mockImplementationOnce( () => Promise.reject( new Error() ) )
+        await expect( dataController.getContinuousValues() ).resolves.toEqual( [] )
+    } )
+} )
+
+describe( 'fetching staggered values from data services', () => {
+    it( 'fetches successfully data', async () => {
+        const data = [1.99, 5.99, 10.99]
+
+        dataServices.getStaggeredValues.mockImplementationOnce( () => Promise.resolve( data ) )
+        await expect( dataController.getStaggeredValues() ).resolves.toEqual( data )
+    } )
+    it( 'fetches erroneously data', async () => {
+        dataServices.getStaggeredValues.mockImplementationOnce( () => Promise.reject( new Error() ) )
+        await expect( dataController.getStaggeredValues() ).resolves.toEqual( [] )
+    } )
+} )

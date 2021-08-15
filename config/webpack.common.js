@@ -1,11 +1,11 @@
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const HtmlWebPackPlugin = require('html-webpack-plugin')
-const path = require('path')
+const { CleanWebpackPlugin } = require( 'clean-webpack-plugin' )
+const HtmlWebPackPlugin = require( 'html-webpack-plugin' )
+const path = require( 'path' )
 
 module.exports = {
     entry: './src/index.js',
     output: {
-        path: path.resolve(__dirname, '../dist'),
+        path: path.resolve( __dirname, '../dist' ),
         filename: '[name].[contenthash].js',
         publicPath: '/'
     },
@@ -27,9 +27,9 @@ module.exports = {
     },
     plugins: [
         new CleanWebpackPlugin(),
-        new HtmlWebPackPlugin({
+        new HtmlWebPackPlugin( {
             template: './public/index.html',
             favicon: './public/favicon.ico'
-        })
+        } )
     ]
 }

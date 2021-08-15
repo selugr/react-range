@@ -1,130 +1,74 @@
-/**
- * @jest-environment jsdom
- */
-import { render, screen, waitFor, cleanup, fireEvent } from '@testing-library/react'
+import '@testing-library/jest-dom'
+import { render, screen, fireEvent } from '@testing-library/react'
 import Input from './Input'
 
-test('renders value with currency symbol in a readonly Input', async () => {
+test( 'value and currency symbol in a readonly Input are shown properly', () => {
     render(
         <Input
             value='2.00'
-            readonly={true}
-            onChange={ () => {}}
-            onModify={() => {}}
+            readonly={ true }
+            onChange={ () => {} }
+            onModify={ () => {} }
         />
     )
-    const label = screen.getByText('2.00€')
-    await waitFor(() => {
-        setTimeout(() => {
-            expect(label).toBeInTheDocument()
-        }, 500)
-    })
-})
+    const marquee = screen.getByText( '2.00€' )
+    expect( marquee ).toBeInTheDocument()
+} )
 
-describe('modifiable input', () => {
-    beforeEach(() => {
-        render(
-            <Input
-                value='2.00'
-                readonly={false}
-                onChange={ () => {}}
-                onModify={() => {}}
-                ariaLabel='filter price'
-            />
-        )
-    })
-
-    afterEach(cleanup)
-
-    test('renders value with currency symbol', async () => {
-        const input = screen.getByRole('textbox', { value: '2.00€' })
-        await waitFor(() => {
-            setTimeout(() => {
-                expect(input).toBeInTheDocument()
-            }, 500)
-        })
-    })
-
-    test('renders aria label', async () => {
-        const ariaLabel = screen.getByLabelText('filter price')
-        await waitFor(() => {
-            setTimeout(() => {
-                expect(ariaLabel).toBeInTheDocument()
-            }, 500)
-        })
-    })
-})
-
-describe('onModify and onChange functions are called when typing', () => {
+describe( 'behaviours on typing', () => {
     let value = '2.00€'
     let typing = false
 
-    const onChangeMockHandler = newValue => {
-        value = newValue
-    }
-    const onModifyMockHandler = isTyping => {
-        typing = isTyping
-    }
+    const onChangeMockHandler = jest.fn( newValue => { value = newValue } )
+    const onModifyMockHandler = jest.fn( isTyping => { typing = isTyping } )
 
     const setup = () => {
         const component = render(
             <Input
-                value={value}
-                readonly={false}
+                value={ value }
+                readonly={ false }
                 onChange={ onChangeMockHandler }
                 onModify={ onModifyMockHandler }
-                ariaLabel='filter price'
+                ariaLabel='input filter'
             />
         )
-        const input = screen.getByRole('textbox', { value: '2.00€' })
+        const input = screen.getByRole( 'textbox', { name: 'input filter' } )
         return {
             input,
             ...component
         }
     }
 
-    afterEach(cleanup)
+    beforeEach( () => {
+        jest.clearAllMocks()
+    } )
 
-    test('writting a new value triggers onChange callback and updates the input element', async () => {
+    it( 'triggers onChange callback and updates the input element when typing a new value', () => {
         const { input } = setup()
-        fireEvent.input(input, { target: { value: '23.00' } })
-        fireEvent.blur(input)
+        fireEvent.input( input, { target: { value: '23.00' } } )
+        fireEvent.blur( input )
 
-        await waitFor(() => {
-            setTimeout(() => {
-                expect(input.value).toBe('23.00€')
-            }, 500)
-        })
-    })
+        expect( onChangeMockHandler ).toHaveBeenCalledTimes( 1 )
+        expect( value ).toBe( '23.00' )
+    } )
 
-    test('focusing and blurring trigger onModify callback', async () => {
+    it( 'triggers onModify callback on focusing and blurring', () => {
         const { input } = setup()
-        fireEvent.input(input, { target: { value: '23.00' } })
+        onModifyMockHandler.mockClear()
 
-        await waitFor(() => {
-            setTimeout(() => {
-                expect(typing).toBeTruthy()
-            }, 500)
-        })
+        fireEvent.focus( input )
+        expect( typing ).toBeTruthy()
 
-        fireEvent.blur(input)
+        fireEvent.blur( input )
+        expect( typing ).toBeFalsy()
 
-        await waitFor(() => {
-            setTimeout(() => {
-                expect(typing).toBeFalsy()
-            }, 500)
-        })
-    })
+        expect( onModifyMockHandler ).toHaveBeenCalledTimes( 2 )
+    } )
 
-    test('invalid input patterns keep data consistency', async () => {
+    it( 'keeps data consistency when an invalid input is typed', () => {
         const { input } = setup()
-        fireEvent.input(input, { target: { value: 'asdf..' } })
-        fireEvent.blur(input)
-
-        await waitFor(() => {
-            setTimeout(() => {
-                expect(input.value).toBe('23.00€')
-            }, 500)
-        })
-    })
-})
+        fireEvent.input( input, { target: { value: 'asdf..' } } )
+        fireEvent.blur( input )
+        expect( value ).toBe( '23.00' )
+    } )
+} )

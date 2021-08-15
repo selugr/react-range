@@ -1,13 +1,21 @@
 import dataServices from './services/dataServices'
 
 const getContinuousValues = async () => {
-    const continuousValues = await dataServices.getContinuousValues()
-    return continuousValues
+    try {
+        const continuousValues = await dataServices.getContinuousValues()
+        return continuousValues
+    } catch ( e ) {
+        return []
+    }
 }
 
 const getStaggeredValues = async () => {
-    const staggeredValues = await dataServices.getStaggeredValues()
-    return staggeredValues
+    try {
+        const staggeredValues = await dataServices.getStaggeredValues()
+        return staggeredValues
+    } catch ( e ) {
+        return []
+    }
 }
 
 export default {
