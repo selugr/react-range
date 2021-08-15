@@ -16,7 +16,7 @@ const Input = (
 
     useEffect( () => {
         if ( !isTyping ) {
-            setInputValue( value )
+            setInputValue( roundingToTwoDecimals( value ) )
         }
     }, [value] )
 
@@ -33,7 +33,7 @@ const Input = (
     }
 
     const handleOnBlur = () => {
-        setInputValue( value )
+        setInputValue( roundingToTwoDecimals( value ) )
         setIsTyping( false )
     }
 
